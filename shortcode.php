@@ -26,20 +26,24 @@ class Engine {
 	protected $_external_data_processor = [];
 	protected $_external_data_getters = [];
 
+	protected $config;
 
 	public function  __construct(bool $do_init = true) {		
 		if($do_init) $this->initTemplateEngine();
 	}
 	
 	public function initTemplateEngine(): Engine {
-		$this->tpl_engine = new \Mustache_Engine([
-			'cache' => DIR_CACHE . 'mustashe',
+		$this->tpl_engine = new \Mustache_Engine([			
 		    'escape' => function($value) {
 				return $value;
 			},
 		]); 
 		$this->_reflection_class = new \ReflectionClass($this);		
 		return $this;
+	}
+	
+	public function setConfig(array &$config) : Engine {
+		$this->config =& $config;
 	}
 	
 	public function returnData() : array {
@@ -694,7 +698,7 @@ class Spec {
 	private $_is_valid = false;
 	
 	
-	public function __construct(SpecParams $params, \Config &$config) {
+	public function __construct(SpecParams $params, array &$config) {
 		$this->config =& $config;
 		$cfg = $params->get('cfg_override');
 		$this->init($params, ($cfg ? $cfg : []));
@@ -1014,16 +1018,12 @@ class SpecParams {
 	}	
 }
 
-class Exception extends \Exception {
-	
-}
-
 /*
 		require 'Mustache/Autoloader.php';
 		Mustache_Autoloader::register();		
-		$this->load->library('shortcode');
 		
 		$e = new \Shortcode\Engine();
+		$e->setConfig($config);
 		
 		$tpl = 'sdfsdf {{# a.field_1 }} {{{b.z}}} {{ bb.c }} dfgdfg {{b.x}} !kjh{ {{/a.field_1}} dflgkmdfg<br />
 		test1: a: {{ test1.a  }}, d: {{ test1.d }}, e: {{ test1.e }}
